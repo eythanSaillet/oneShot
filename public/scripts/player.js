@@ -1,12 +1,13 @@
 class Player
 {
-    constructor(posX, posY, radius)
+    constructor(posX, posY, radius, color)
     {
         this.id = null
 
         this.pos = createVector(posX, posY)
         this.speed = createVector(0, 0)
         this.radius = radius
+        this.color = color,
 
         this.speedGoal = createVector(0, 0)
         this.maxSpeed = 3
@@ -108,44 +109,4 @@ class Player
             }
         })
     }
-
-    // wallCollisionTestXPos(){
-    //     if(this.pos.x > width - (this.radius / 2)){
-    //         return true
-    //     }
-    //     else{
-    //         return false
-    //     }
-    // }
-    // wallCollisionTestXNeg(){
-    //     if(this.pos.x < - (this.width / 2) + this.wallHeight + (this.width / 2)){
-    //         return true
-    //     }
-    //     else{
-    //         return false
-    //     }
-    // }
-    // wallCollisionTestYPos(){
-    //     if(this.pos.y > (this.height / 2) - this.wallHeight - (this.height / 2)){
-    //         return true
-    //     }
-    //     else{
-    //         return false
-    //     }
-    // }
-    // wallCollisionTestYNeg(){
-    //     if(this.pos.y < - (this.height / 2) + this.wallHeight + (this.height / 2)){
-    //         return true
-    //     }
-    //     else{
-    //         return false
-    //     }
-    // }
-
-    // playerMovement()
-    // {
-    //     if (player.pos.x <) {
-            
-    //     }
-    // }
 }
