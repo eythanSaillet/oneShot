@@ -18,11 +18,14 @@ class Player
         this.movingYPos = false
         this.movingYNeg = false
 
+        this.cannonLength = 20,
+        this.cannonWidth = 10,
+        this.cannonDir = null,
+
         this.life = 100
 
         this.setKeyboardControls()
     }
-
 
     setKeyboardControls()
     {

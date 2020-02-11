@@ -36,8 +36,6 @@ function newConnection(socket)
         // ADD THE PLAYER TO THE PLAYERS LIST
         players.push(new Player(socket.id, player.x, player.y, player.radius, player.color))
 
-        // SET THE INTERVAL WHICH SEND UPDATE TO ALL CLIENTS
-
         // SET UPDATE CLIENT INFOS
         socket.on('update', playerStates =>
         {
@@ -53,9 +51,9 @@ function newConnection(socket)
     })
 }
 
+// SET THE INTERVAL WHICH SEND UPDATE TO ALL CLIENTS
 setInterval(heartBeat, 33)
 
-// INTERVAL WHICH SEND UPDATE TO ALL CLIENTS
 function heartBeat()
 {
     io.sockets.emit('heartbeat', players)
