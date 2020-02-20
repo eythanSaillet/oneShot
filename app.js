@@ -16,10 +16,11 @@ let players = []
 
 class Player
 {
-    constructor(id, x, y, radius, color)
+    constructor(id, x, y, cannonDirX, cannonDirY, radius, color)
     {
         this.id = id
         this.pos = {x: x, y: y}
+        this.cannonDir = {x : cannonDirX, y : cannonDirY}
         this.radius = radius
         this.color = color
     }
@@ -29,12 +30,13 @@ class Player
 function newConnection(socket)
 {
     console.log('New connection : ' + socket.id)
+    socket.emit('id', socket.id)
 
     // GET PLAYER INFOS FROM CLIENT
     socket.on('start', player =>
     {
         // ADD THE PLAYER TO THE PLAYERS LIST
-        players.push(new Player(socket.id, player.x, player.y, player.radius, player.color))
+        players.push(new Player(socket.id, player.x, player.y, player.cannonDir.x, player.cannonDir.y, player.radius, player.color))
 
         // SET UPDATE CLIENT INFOS
         socket.on('update', playerStates =>
@@ -45,8 +47,16 @@ function newConnection(socket)
                 {
                     players[_key].pos.x = playerStates.x
                     players[_key].pos.y = playerStates.y
+                    players[_key].cannonDir.x = playerStates.cannonDir.x
+                    players[_key].cannonDir.y = playerStates.cannonDir.y
                 }
             }
+        })
+
+        // SET UPDATE BULLET CLIENT INFOS
+        socket.on('shoot', bulletData =>
+        {
+            io.sockets.emit('enemyShoot', bulletData)
         })
     })
 }
@@ -57,4 +67,5 @@ setInterval(heartBeat, 33)
 function heartBeat()
 {
     io.sockets.emit('heartbeat', players)
+    // console.log(players)
 }

@@ -20,7 +20,7 @@ class Player
 
         this.cannonLength = 20,
         this.cannonWidth = 10,
-        this.cannonDir = null,
+        this.cannonDir = createVector(0, 0),
         this.isShooting = false,
         this.justShoot = false,
         this.shootingRate = 200,

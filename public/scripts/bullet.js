@@ -1,9 +1,10 @@
 class Bullet
 {
-    constructor(posX, posY, speedX, speedY, bulletSpeed)
+    constructor(posX, posY, speedX, speedY, bulletSpeed, playerId)
     {
         this.pos = createVector(posX + speedX, posY + speedY)
         this.speed = createVector(speedX, speedY).mult(bulletSpeed)
+        this.playerId = playerId
     }
 
     updatePos()
