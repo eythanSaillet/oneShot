@@ -59,6 +59,17 @@ function newConnection(socket)
             io.sockets.emit('enemyShoot', bulletData)
         })
     })
+
+    // DELETE PLAYER WHEN DISCONNECT
+    socket.on('disconnect', () =>
+    {
+        for (const player of players)
+        {
+            if (player.id == socket.id) {
+                players.pop(player)
+            }
+        }
+    })
 }
 
 // SET THE INTERVAL WHICH SEND UPDATE TO ALL CLIENTS
@@ -67,5 +78,4 @@ setInterval(heartBeat, 33)
 function heartBeat()
 {
     io.sockets.emit('heartbeat', players)
-    // console.log(players)
 }
