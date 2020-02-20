@@ -49,6 +49,7 @@ function newConnection(socket)
                     players[_key].pos.y = playerStates.y
                     players[_key].cannonDir.x = playerStates.cannonDir.x
                     players[_key].cannonDir.y = playerStates.cannonDir.y
+                    players[_key].godMod = playerStates.godMod
                 }
             }
         })
@@ -63,10 +64,10 @@ function newConnection(socket)
     // DELETE PLAYER WHEN DISCONNECT
     socket.on('disconnect', () =>
     {
-        for (const player of players)
+        for (const _player of players)
         {
-            if (player.id == socket.id) {
-                players.pop(player)
+            if (_player.id == socket.id) {
+                players.die()
             }
         }
     })

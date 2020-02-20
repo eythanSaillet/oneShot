@@ -20,6 +20,7 @@ function setup()
         cannonDir : {x : clientPlayer.cannonDir.x, y : clientPlayer.cannonDir.y},
         radius : clientPlayer.radius,
         color : clientPlayer.color,
+        godMod : false,
     }
     socket.emit('start', playerStates)
 
@@ -46,23 +47,42 @@ function setup()
 
 function updatePlayerPos(player)
 {
-    // PLAYER CANVAS POS UPDATE
-    player.speed.x = lerp(player.speed.x, player.speedGoal.x, player.acc)
-    player.speed.y = lerp(player.speed.y, player.speedGoal.y, player.acc)
-    player.pos.x += player.speed.x
-    player.pos.y += player.speed.y
+    if (clientPlayer.isDead == false)
+    {
+        // PLAYER CANVAS POS UPDATE
+        player.speed.x = lerp(player.speed.x, player.speedGoal.x, player.acc)
+        player.speed.y = lerp(player.speed.y, player.speedGoal.y, player.acc)
+        player.pos.x += player.speed.x
+        player.pos.y += player.speed.y
+    
+        // PLAYER CANNON DIRECTION UPDATE
+        player.cannonDir = createVector(mouseX - clientPlayer.pos.x, mouseY - clientPlayer.pos.y).normalize().mult(player.cannonLength)
+    }
 
-    stroke('white')
-    strokeWeight(1)
-    fill(player.color.r, player.color.g, player.color.b)
-    stroke('pink')
-    ellipse(player.pos.x, player.pos.y, player.radius)
+    if (clientPlayer.godMod == false)
+    {
+        // ALIVE PLAYER AND CANNON DISPLAY
+        strokeWeight(1)
+        fill(player.color.r, player.color.g, player.color.b)
+        stroke('pink')
+        ellipse(player.pos.x, player.pos.y, player.radius)
 
-    // PLAYER CANNON DIRECTION UPDATE
-    player.cannonDir = createVector(mouseX - clientPlayer.pos.x, mouseY - clientPlayer.pos.y).normalize().mult(player.cannonLength)
-    stroke(200)
-    strokeWeight(player.cannonWidth)
-    line(clientPlayer.pos.x, clientPlayer.pos.y, clientPlayer.pos.x + player.cannonDir.x, clientPlayer.pos.y + player.cannonDir.y)
+        stroke(200)
+        strokeWeight(player.cannonWidth)
+        line(clientPlayer.pos.x, clientPlayer.pos.y, clientPlayer.pos.x + player.cannonDir.x, clientPlayer.pos.y + player.cannonDir.y)
+    }
+    else
+    {
+        // DEAD PLAYER AND CANNON DISPLAY
+        stroke('rgba(100%,100%,100%,0.3)')
+        strokeWeight(1)
+        fill('rgba(100%,100%,100%,0.3)')
+        ellipse(player.pos.x, player.pos.y, player.radius)
+
+        stroke(200)
+        strokeWeight(player.cannonWidth)
+        line(clientPlayer.pos.x, clientPlayer.pos.y, clientPlayer.pos.x + player.cannonDir.x, clientPlayer.pos.y + player.cannonDir.y)
+    }
 }
 
 function playerConstrain(player)
@@ -79,22 +99,40 @@ function playersDisplay()
     playerStates.y = clientPlayer.pos.y
     playerStates.cannonDir.x = clientPlayer.cannonDir.x
     playerStates.cannonDir.y = clientPlayer.cannonDir.y
+    playerStates.godMod = clientPlayer.godMod
     socket.emit('update', playerStates)
 
     for (const _element of playersArray)
     {
         if(_element.id != socket.id)
         {
-            // PLAYER DISPLAY
-            stroke('white')
-            strokeWeight(1)
-            fill(_element.color.r, _element.color.g, _element.color.b)
-            ellipse(_element.pos.x, _element.pos.y, _element.radius)
+            // console.log(_element)
+            if(_element.godMod == false)
+            {
+                // ALIVE PLAYER DISPLAY
+                stroke('white')
+                strokeWeight(1)
+                fill(_element.color.r, _element.color.g, _element.color.b)
+                ellipse(_element.pos.x, _element.pos.y, _element.radius)
+    
+                // ALIVE CANNON DISPLAY
+                stroke(200)
+                strokeWeight(clientPlayer.cannonWidth)
+                line(_element.pos.x, _element.pos.y, _element.pos.x + _element.cannonDir.x, _element.pos.y + _element.cannonDir.y)
+            }
+            else
+            {
+                // DEAD PLAYER DISPLAY
+                stroke('rgba(100%,100%,100%,0.3)')
+                strokeWeight(1)
+                fill('rgba(100%,100%,100%,0.3)')
+                ellipse(_element.pos.x, _element.pos.y, _element.radius)
 
-            // CANNON DISPLAY
-            stroke(200)
-            strokeWeight(clientPlayer.cannonWidth)
-            line(_element.pos.x, _element.pos.y, _element.pos.x + _element.cannonDir.x, _element.pos.y + _element.cannonDir.y)
+                // DEAD CANNON DISPLAY
+                stroke(200)
+                strokeWeight(clientPlayer.cannonWidth)
+                line(_element.pos.x, _element.pos.y, _element.pos.x + _element.cannonDir.x, _element.pos.y + _element.cannonDir.y)
+            }
         }
     }
 }
@@ -143,15 +181,31 @@ function bulletsUpdate()
     }
 }
 
+function bulletCollisionTest()
+{
+    for (const _bullet of bulletArray)
+    {
+        if (_bullet.playerId != clientPlayer.id && dist(_bullet.pos.x, _bullet.pos.y, clientPlayer.pos.x, clientPlayer.pos.y) < 25 && clientPlayer.godMod == false)
+        {
+            console.log('touch')
+            clientPlayer.die()
+        }
+    }
+}
+
 function draw()
 {
     clear()
     background(51)
 
-    playerShooting()
-    bulletsUpdate()
-
+    if (clientPlayer.isDead == false)
+    {
+        playerShooting()
+        playerConstrain(clientPlayer)
+    }
     updatePlayerPos(clientPlayer)
-    playerConstrain(clientPlayer)
     playersDisplay()
+
+    bulletsUpdate()
+    bulletCollisionTest()
 }
