@@ -21,10 +21,27 @@ class Player
         this.cannonLength = 20,
         this.cannonWidth = 10,
         this.cannonDir = null,
+        this.isShooting = false,
+        this.justShoot = false,
+        this.shootingRate = 200,
+        this.bulletSpeed = 0.3,
 
         this.life = 100
 
+        this.setShootingMouseEvent()
         this.setKeyboardControls()
+    }
+
+    setShootingMouseEvent()
+    {
+        window.addEventListener('mousedown', () =>
+        {
+            this.isShooting = true
+        })
+        window.addEventListener('mouseup', () =>
+        {
+            this.isShooting = false
+        })
     }
 
     setKeyboardControls()

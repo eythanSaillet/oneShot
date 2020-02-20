@@ -1,5 +1,6 @@
 let clientPlayer, playerStates
 let playersArray = []
+let bulletArray = []
 let socket
 
 function setup()
@@ -75,15 +76,45 @@ function playersDisplay()
     }
 }
 
+function playerShooting()
+{
+    if (clientPlayer.isShooting == true)
+    {
+        if (clientPlayer.justShoot == false)
+        {
+            bulletArray.push(new Bullet(clientPlayer.pos.x, clientPlayer.pos.y, clientPlayer.cannonDir.x, clientPlayer.cannonDir.y, clientPlayer.bulletSpeed))
+            clientPlayer.justShoot = true
+            setTimeout( () =>
+            {
+                clientPlayer.justShoot = false
+            }
+            , clientPlayer.shootingRate)
+        }
+    }
+}
+
+function bulletsUpdate()
+{
+
+    bulletArray = bulletArray.filter(bullet => bullet.pos.x < width && bullet.pos.x > 0 && bullet.pos.y < height && bullet.pos.y > 0)
+
+    for (let i = 0; i < bulletArray.length; i++) {
+        bulletArray[i].updatePos()
+        bulletArray[i].draw()
+    }
+}
+
 function draw()
 {
     clear()
     background(51)
 
+    playerShooting()
+    bulletsUpdate()
+
     updatePlayerPos(clientPlayer)
     playerConstrain(clientPlayer)
     playersDisplay()
-
 
     // clientPlayer.updateCannonDir()
 }
