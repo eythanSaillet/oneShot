@@ -66,8 +66,9 @@ function newConnection(socket)
     {
         for (const _player of players)
         {
-            if (_player.id == socket.id) {
-                players.die()
+            if (_player.id == socket.id)
+            {
+                players.pop(_player)
             }
         }
     })
