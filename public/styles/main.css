@@ -1,10 +1,54 @@
 body {
-  margin: 0; }
+  margin: 0;
+  font-family: 'Open Sans'; }
 
 .container {
-  width: 100vw;
-  height: 100vh;
   display: flex;
+  justify-content: space-around;
   align-items: center;
-  justify-content: center;
   background-color: #111; }
+  .container #canvasContainer {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center; }
+    .container #canvasContainer canvas {
+      height: 70vh; }
+  .container .rightContainer, .container .leftContainer {
+    height: 100vh;
+    width: 35vh; }
+  .container .leftContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center; }
+    .container .leftContainer .connectionContainer {
+      height: 170px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center; }
+      .container .leftContainer .connectionContainer .nameInput {
+        width: 150px;
+        height: 40px;
+        background-color: #222;
+        color: #999;
+        font-size: 20px;
+        text-align: center;
+        border: none;
+        box-sizing: border-box; }
+        .container .leftContainer .connectionContainer .nameInput:focus {
+          outline: none;
+          border: #555 1px solid; }
+      .container .leftContainer .connectionContainer .joinButton {
+        width: 100px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #222;
+        cursor: pointer; }
+        .container .leftContainer .connectionContainer .joinButton:hover {
+          background-color: #333; }
+        .container .leftContainer .connectionContainer .joinButton p {
+          font-size: 20px;
+          color: #999; }

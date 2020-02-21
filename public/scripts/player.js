@@ -1,8 +1,9 @@
 class Player
 {
-    constructor(posX, posY, radius, color)
+    constructor(id, name, posX, posY, radius, color)
     {
-        this.id = null
+        this.id = id
+        this.name = name
 
         this.pos = createVector(posX, posY)
         this.speed = createVector(0, 0)
@@ -23,7 +24,7 @@ class Player
         this.cannonDir = createVector(0, 0),
         this.isShooting = false,
         this.justShoot = false,
-        this.shootingRate = 200,
+        this.shootingRate = 400,
         this.bulletSpeed = 0.3,
 
         this.isDead = false
@@ -45,6 +46,66 @@ class Player
         {
             this.godMod = false
         }, 6500)
+    }
+
+    updatePlayerPos()
+    {
+        // UPDATE
+        if (this.isDead == false)
+        {
+            // PLAYER CANVAS POS
+            this.speed.x = lerp(this.speed.x, this.speedGoal.x, this.acc)
+            this.speed.y = lerp(this.speed.y, this.speedGoal.y, this.acc)
+            this.pos.x += this.speed.x
+            this.pos.y += this.speed.y
+        
+            // PLAYER CANNON DIRECTION
+            this.cannonDir = createVector(mouseX - this.pos.x, mouseY - this.pos.y).normalize().mult(this.cannonLength)
+        }
+
+        // DISPLAY
+        if (this.godMod == false)
+        {
+            // ALIVE PLAYER
+            // PLAYER
+            strokeWeight(1)
+            fill(this.color)
+            stroke('pink')
+            ellipse(this.pos.x, this.pos.y, this.radius)
+
+            // CANNON
+            stroke(200)
+            strokeWeight(this.cannonWidth)
+            line(this.pos.x, this.pos.y, this.pos.x + this.cannonDir.x, this.pos.y + this.cannonDir.y)
+
+        }
+        else
+        {
+            // DEAD PLAYER
+            // PLAYER
+            stroke('rgba(100%,100%,100%,0.3)')
+            strokeWeight(1)
+            fill('rgba(100%,100%,100%,0.3)')
+            ellipse(this.pos.x, this.pos.y, this.radius)
+
+            // CANNON
+            stroke(200)
+            strokeWeight(this.cannonWidth)
+            line(this.pos.x, this.pos.y, this.pos.x + this.cannonDir.x, this.pos.y + this.cannonDir.y)
+        }
+
+        // PLAYER NAME DISPLAY
+        textAlign(CENTER)
+        textSize(15)
+        fill('rgba(255, 255, 255, 0.4)')
+        noStroke()
+        text(this.name, this.pos.x, this.pos.y + 35)
+    }
+
+    playerConstrain()
+    {
+        this.pos.x = constrain(this.pos.x, 0 + this.radius / 2, width - this.radius / 2)
+        this.pos.y = constrain(this.pos.y, 0 + this.radius / 2, width - this.radius / 2)
     }
 
     setShootingMouseEvent()
@@ -92,60 +153,57 @@ class Player
 
         window.addEventListener('keyup', (_event) =>
         {
-            if(this.isDead == false)
-            {
-                switch (_event.code) {
-                    case 'KeyW':
-                    case 'ArrowUp':
-                        if (this.movingYPos && this.movingYneg) {
-                            this.movingYNeg = false
-                            this.speedGoal.y = -this.maxSpeed
-                        }
-                        else
-                        {
-                            this.movingYNeg = false
-                            this.speedGoal.y = 0
-                        }
-                        break;
-                    case 'KeyS':
-                    case 'ArrowDown':
-                        if (this.movingYPos && this.movingYneg) {
-                            this.movingYPos = false
-                            this.speedGoal.y = -this.maxSpeed
-                        }
-                        else
-                        {
-                            this.movingYNeg = false
-                            this.speedGoal.y = 0
-                        }
-                        break;
-                    case 'KeyA':
-                    case 'ArrowLeft':
-                        if (this.movingXPos && this.movingXNeg) {
-                            this.movingXNeg = false
-                            this.speedGoal.x = this.maxSpeed
-                        }
-                        else
-                        {
-                            this.movingXNeg = false
-                            this.speedGoal.x = 0
-                        }
-                        break;
-                    case 'KeyD':
-                    case 'ArrowRight':
-                        if (this.movingXPos && this.movingXNeg) {
-                            this.movingXPos = false
-                            this.speedGoal.x = -this.maxSpeed
-                        }
-                        else
-                        {
-                            this.movingXPos = false
-                            this.speedGoal.x = 0
-                        }
-                        break;
-                    default:
-                        break;
-                }
+            switch (_event.code) {
+                case 'KeyW':
+                case 'ArrowUp':
+                    if (this.movingYPos && this.movingYneg) {
+                        this.movingYNeg = false
+                        this.speedGoal.y = -this.maxSpeed
+                    }
+                    else
+                    {
+                        this.movingYNeg = false
+                        this.speedGoal.y = 0
+                    }
+                    break;
+                case 'KeyS':
+                case 'ArrowDown':
+                    if (this.movingYPos && this.movingYneg) {
+                        this.movingYPos = false
+                        this.speedGoal.y = -this.maxSpeed
+                    }
+                    else
+                    {
+                        this.movingYNeg = false
+                        this.speedGoal.y = 0
+                    }
+                    break;
+                case 'KeyA':
+                case 'ArrowLeft':
+                    if (this.movingXPos && this.movingXNeg) {
+                        this.movingXNeg = false
+                        this.speedGoal.x = this.maxSpeed
+                    }
+                    else
+                    {
+                        this.movingXNeg = false
+                        this.speedGoal.x = 0
+                    }
+                    break;
+                case 'KeyD':
+                case 'ArrowRight':
+                    if (this.movingXPos && this.movingXNeg) {
+                        this.movingXPos = false
+                        this.speedGoal.x = -this.maxSpeed
+                    }
+                    else
+                    {
+                        this.movingXPos = false
+                        this.speedGoal.x = 0
+                    }
+                    break;
+                default:
+                    break;
             }
         })
     }

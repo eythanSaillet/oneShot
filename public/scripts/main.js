@@ -1,4 +1,5 @@
-let clientPlayer, playerStates
+let clientPlayer, clientId, playerStates
+let isConnected = false
 let playersArray = []
 let bulletArray = []
 let socket
@@ -6,28 +7,18 @@ let socket
 function setup()
 {
     createCanvas(700, 700).parent('canvasContainer')
+    document.querySelector('#canvasContainer canvas').style.height = '90vh'
+    document.querySelector('#canvasContainer canvas').style.width = 'auto'
+    // document.querySelector('#canvasContainer canvas').style.maxWidth = '60vh'
     angleMode(DEGREES)
 
     // socket = io.connect('http://eythansaillet.eu-4.evennode.com/')
     socket = io.connect('localhost:3000')
 
-    // CREATE THE PLAYER AND SEND IT TO THE SERVER
-    clientPlayer = new Player(random(width / 10 , width / 1.1), random(height / 10 , height / 1.1), 30, {r: random(255), g: random(255), b: random(255)})
-    playerStates =
-    {
-        x : clientPlayer.pos.x,
-        y : clientPlayer.pos.y,
-        cannonDir : {x : clientPlayer.cannonDir.x, y : clientPlayer.cannonDir.y},
-        radius : clientPlayer.radius,
-        color : clientPlayer.color,
-        godMod : false,
-    }
-    socket.emit('start', playerStates)
-
     // SETTING PLAYER ID
     socket.on('id', id =>
     {
-        clientPlayer.id = id
+        clientId = id
     })
 
     // RECEIVE ALL PLAYERS DATA FROM THE SERVER
@@ -39,60 +30,48 @@ function setup()
     // SETTING BULLET INFO SOCKET
     socket.on('enemyShoot', bulletData =>
     {
-        if (bulletData.id != clientPlayer.id) {
-            bulletArray.push(new Bullet(bulletData.posX, bulletData.posY, bulletData.speedX, bulletData.speedY, clientPlayer.bulletSpeed, bulletData.id))
+        if (bulletData.id != clientId) {
+            bulletArray.push(new Bullet(bulletData.posX, bulletData.posY, bulletData.speedX, bulletData.speedY, 0.3, bulletData.id))
+        }
+    })
+
+    setJoinButtonEvent()
+}
+
+function setJoinButtonEvent()
+{
+    document.querySelector('.connectionContainer .joinButton').addEventListener('click', () =>
+    {
+        if (isConnected == false)
+        {
+            isConnected = true
+            let inputName = document.querySelector('.connectionContainer .nameInput').value
+            let inputColor = document.querySelector('.connectionContainer .colorInput').value
+            joinParty(inputName, inputColor)
         }
     })
 }
 
-function updatePlayerPos(player)
+function joinParty(name, color)
 {
-    if (clientPlayer.isDead == false)
+    // CREATE THE PLAYER AND SEND IT TO THE SERVER
+    // randome color : {r: random(255), g: random(255), b: random(255)}
+    clientPlayer = new Player(clientId, name, random(width / 10 , width / 1.1), random(height / 10 , height / 1.1), 30, color)
+    playerStates =
     {
-        // PLAYER CANVAS POS UPDATE
-        player.speed.x = lerp(player.speed.x, player.speedGoal.x, player.acc)
-        player.speed.y = lerp(player.speed.y, player.speedGoal.y, player.acc)
-        player.pos.x += player.speed.x
-        player.pos.y += player.speed.y
-    
-        // PLAYER CANNON DIRECTION UPDATE
-        player.cannonDir = createVector(mouseX - clientPlayer.pos.x, mouseY - clientPlayer.pos.y).normalize().mult(player.cannonLength)
+        id : clientPlayer.id,
+        name : clientPlayer.name,
+        x : clientPlayer.pos.x,
+        y : clientPlayer.pos.y,
+        cannonDir : {x : clientPlayer.cannonDir.x, y : clientPlayer.cannonDir.y},
+        radius : clientPlayer.radius,
+        color : clientPlayer.color,
+        godMod : false,
     }
-
-    if (clientPlayer.godMod == false)
-    {
-        // ALIVE PLAYER AND CANNON DISPLAY
-        strokeWeight(1)
-        fill(player.color.r, player.color.g, player.color.b)
-        stroke('pink')
-        ellipse(player.pos.x, player.pos.y, player.radius)
-
-        stroke(200)
-        strokeWeight(player.cannonWidth)
-        line(clientPlayer.pos.x, clientPlayer.pos.y, clientPlayer.pos.x + player.cannonDir.x, clientPlayer.pos.y + player.cannonDir.y)
-    }
-    else
-    {
-        // DEAD PLAYER AND CANNON DISPLAY
-        stroke('rgba(100%,100%,100%,0.3)')
-        strokeWeight(1)
-        fill('rgba(100%,100%,100%,0.3)')
-        ellipse(player.pos.x, player.pos.y, player.radius)
-
-        stroke(200)
-        strokeWeight(player.cannonWidth)
-        line(clientPlayer.pos.x, clientPlayer.pos.y, clientPlayer.pos.x + player.cannonDir.x, clientPlayer.pos.y + player.cannonDir.y)
-    }
+    socket.emit('start', playerStates)
 }
 
-function playerConstrain(player)
-{
-    player.pos.x = constrain(player.pos.x, 0 + player.radius / 2, width - player.radius / 2)
-    player.pos.y = constrain(player.pos.y, 0 + player.radius / 2, width - player.radius / 2)
-}
-
-// DISPLAYING ALL PLAYERS EXCEPT THE CLIENT PLAYER
-function playersDisplay()
+function clientServerUpdate()
 {
     // PLAYER SERVER POS/CANNONDIR UPDATE
     playerStates.x = clientPlayer.pos.x
@@ -101,6 +80,11 @@ function playersDisplay()
     playerStates.cannonDir.y = clientPlayer.cannonDir.y
     playerStates.godMod = clientPlayer.godMod
     socket.emit('update', playerStates)
+}
+
+// DISPLAYING ALL PLAYERS EXCEPT THE CLIENT PLAYER
+function playersDisplay()
+{
 
     for (const _element of playersArray)
     {
@@ -112,12 +96,12 @@ function playersDisplay()
                 // ALIVE PLAYER DISPLAY
                 stroke('white')
                 strokeWeight(1)
-                fill(_element.color.r, _element.color.g, _element.color.b)
+                fill(_element.color)
                 ellipse(_element.pos.x, _element.pos.y, _element.radius)
     
                 // ALIVE CANNON DISPLAY
                 stroke(200)
-                strokeWeight(clientPlayer.cannonWidth)
+                strokeWeight(10)
                 line(_element.pos.x, _element.pos.y, _element.pos.x + _element.cannonDir.x, _element.pos.y + _element.cannonDir.y)
             }
             else
@@ -130,9 +114,16 @@ function playersDisplay()
 
                 // DEAD CANNON DISPLAY
                 stroke(200)
-                strokeWeight(clientPlayer.cannonWidth)
+                strokeWeight(10)
                 line(_element.pos.x, _element.pos.y, _element.pos.x + _element.cannonDir.x, _element.pos.y + _element.cannonDir.y)
             }
+
+            // PLAYER NAME DISPLAY
+            textAlign(CENTER)
+            textSize(15)
+            fill('rgba(255, 255, 255, 0.4)')
+            noStroke()
+            text(_element.name, _element.pos.x, _element.pos.y + 35)
         }
     }
 }
@@ -183,12 +174,15 @@ function bulletsUpdate()
 
 function bulletCollisionTest()
 {
-    for (const _bullet of bulletArray)
+    if (clientPlayer != undefined)
     {
-        if (_bullet.playerId != clientPlayer.id && dist(_bullet.pos.x, _bullet.pos.y, clientPlayer.pos.x, clientPlayer.pos.y) < 25 && clientPlayer.godMod == false)
+        for (const _bullet of bulletArray)
         {
-            console.log('touch')
-            clientPlayer.die()
+            if (_bullet.playerId != clientPlayer.id && dist(_bullet.pos.x, _bullet.pos.y, clientPlayer.pos.x, clientPlayer.pos.y) < 25 && clientPlayer.godMod == false)
+            {
+                console.log('touch')
+                clientPlayer.die()
+            }
         }
     }
 }
@@ -198,12 +192,16 @@ function draw()
     clear()
     background(51)
 
-    if (clientPlayer.isDead == false)
+    if (isConnected == true)
     {
-        playerShooting()
-        playerConstrain(clientPlayer)
+        if (clientPlayer.isDead == false)
+        {
+            playerShooting()
+            clientPlayer.playerConstrain()
+        }
+        clientPlayer.updatePlayerPos()
+        clientServerUpdate()
     }
-    updatePlayerPos(clientPlayer)
     playersDisplay()
 
     bulletsUpdate()

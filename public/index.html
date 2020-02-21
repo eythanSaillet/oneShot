@@ -4,10 +4,23 @@
     <meta charset="utf-8">
     <title></title>
     <meta name="description" content="">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/main.css">
   </head>
   <body>
-    <div class="container" id="canvasContainer"></div>
+    <div class="container">
+      <div class="leftContainer">
+        <div class="connectionContainer">
+          <input class="nameInput" type="text">
+          <input class="colorInput"  type="color">
+          <div class="joinButton">
+            <p>JOIN</p>
+          </div>
+        </div>
+      </div>
+      <div id="canvasContainer"></div>
+      <div class="rightContainer"></div>
+    </div>
   </body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
   <script src="scripts/p5.min.js" charset="utf-8"></script>
