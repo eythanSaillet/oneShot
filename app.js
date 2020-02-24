@@ -24,6 +24,7 @@ class Player
         this.cannonDir = {x : cannonDirX, y : cannonDirY}
         this.radius = radius
         this.color = color
+        this.shootingRate = null
 
         this.afkPos = 0
     }
@@ -54,6 +55,8 @@ function newConnection(socket)
                     players[_key].cannonDir.x = playerStates.cannonDir.x
                     players[_key].cannonDir.y = playerStates.cannonDir.y
                     players[_key].godMod = playerStates.godMod
+
+                    players[_key].shootingRate = 200 * Math.pow(1.4, players.length)
                 }
             }
         })
@@ -75,16 +78,8 @@ function newConnection(socket)
                 players.splice(_key, 1)
             }
         }
-        // for (const _player of players)
-        // {
-        //     if (_player.id == socket.id)
-        //     {
-        //         players.pop(_player)
-        //     }
-        // }
     })
 }
-
 
 
 // SET THE INTERVAL WHICH SEND UPDATE TO ALL CLIENTS
@@ -95,18 +90,17 @@ function heartBeat()
     io.sockets.emit('heartbeat', players)
 }
 
+
 // AFK TEST
-setInterval(afkTest, 5000)
+setInterval(afkTest, 7000)
 
 function afkTest()
 {
-    console.log(players)
     for (const _key in players)
     {
         if(players[_key].afkPos == players[_key].pos.x)
         {
             io.sockets.emit('afk', players[_key].id)
-            console.log(players[_key])
             players.splice(_key, 1)
         }
         else
@@ -114,13 +108,4 @@ function afkTest()
             players[_key].afkPos = players[_key].pos.x
         }
     }
-    // for (const _player of players)
-    // {
-    //     if(_player.afkPos == _player.pos.x)
-    //     {
-    //         io.sockets.emit('afk', _player.id)
-    //         players.pop(_player)
-    //     }
-    //     _player.afkPos = _player.pos.x
-    // }
 }

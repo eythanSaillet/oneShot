@@ -51,7 +51,60 @@ class Player
         }, 6500)
     }
 
-    updatePlayerPos()
+    syncClientWithServer()
+    {
+        for (const _player of playersArray)
+        {
+            if (_player.id == socket.id)
+            {
+                this.shootingRate = _player.shootingRate
+            }
+        }
+    }
+
+    updateStates()
+    {
+        // PLAYER SERVER POS/CANNONDIR UPDATE
+        playerStates.x = this.pos.x
+        playerStates.y = this.pos.y
+        playerStates.cannonDir.x = this.cannonDir.x
+        playerStates.cannonDir.y = this.cannonDir.y
+        playerStates.godMod = this.godMod
+        socket.emit('update', playerStates)
+    }
+
+    shootingTest()
+    {
+        if (this.isShooting == true)
+        {
+            if (this.justShoot == false)
+            {
+                // CREATING BULLET OBJECT 
+                bulletArray.push(new Bullet(this.pos.x, this.pos.y, this.cannonDir.x, this.cannonDir.y, this.bulletSpeed, this.id))
+
+                // SENDING BULLET INFOS TO SERVER
+                let bulletData =
+                {
+                    id : this.id,
+                    posX : this.pos.x,
+                    posY : this.pos.y,
+                    speedX : this.cannonDir.x,
+                    speedY : this.cannonDir.y
+                }
+                socket.emit('shoot', bulletData)
+
+                // SETTING SHOOTING DELAY
+                this.justShoot = true
+                setTimeout( () =>
+                {
+                    this.justShoot = false
+                }
+                , this.shootingRate)
+            }
+        }
+    }
+
+    updatePos()
     {
         // UPDATE
         if (this.isDead == false)
@@ -105,7 +158,7 @@ class Player
         text(this.name, this.pos.x, this.pos.y + 35)
     }
 
-    playerConstrain()
+    mapConstrain()
     {
         this.pos.x = constrain(this.pos.x, 0 + this.radius / 2, width - this.radius / 2)
         this.pos.y = constrain(this.pos.y, 0 + this.radius / 2, width - this.radius / 2)

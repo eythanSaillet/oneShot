@@ -55,7 +55,6 @@ function setJoinButtonEvent()
 function joinParty(name, color)
 {
     // CREATE THE PLAYER AND SEND IT TO THE SERVER
-    // randome color : {r: random(255), g: random(255), b: random(255)}
     clientPlayer = new Player(clientId, name, random(width / 10 , width / 1.1), random(height / 10 , height / 1.1), 30, color)
     playerStates =
     {
@@ -71,26 +70,13 @@ function joinParty(name, color)
     socket.emit('start', playerStates)
 }
 
-function clientServerUpdate()
-{
-    // PLAYER SERVER POS/CANNONDIR UPDATE
-    playerStates.x = clientPlayer.pos.x
-    playerStates.y = clientPlayer.pos.y
-    playerStates.cannonDir.x = clientPlayer.cannonDir.x
-    playerStates.cannonDir.y = clientPlayer.cannonDir.y
-    playerStates.godMod = clientPlayer.godMod
-    socket.emit('update', playerStates)
-}
-
 // DISPLAYING ALL PLAYERS EXCEPT THE CLIENT PLAYER
 function playersDisplay()
 {
-
     for (const _element of playersArray)
     {
         if(_element.id != socket.id)
         {
-            // console.log(_element)
             if(_element.godMod == false)
             {
                 // ALIVE PLAYER DISPLAY
@@ -128,37 +114,7 @@ function playersDisplay()
     }
 }
 
-function playerShooting()
-{
-    if (clientPlayer.isShooting == true)
-    {
-        if (clientPlayer.justShoot == false)
-        {
-            // CREATING BULLET OBJECT 
-            bulletArray.push(new Bullet(clientPlayer.pos.x, clientPlayer.pos.y, clientPlayer.cannonDir.x, clientPlayer.cannonDir.y, clientPlayer.bulletSpeed, clientPlayer.id))
-
-            // SENDING BULLET INFOS TO SERVER
-            let bulletData =
-            {
-                id : clientPlayer.id,
-                posX : clientPlayer.pos.x,
-                posY : clientPlayer.pos.y,
-                speedX : clientPlayer.cannonDir.x,
-                speedY : clientPlayer.cannonDir.y
-            }
-            socket.emit('shoot', bulletData)
-
-            // SETTING SHOOTING DELAY
-            clientPlayer.justShoot = true
-            setTimeout( () =>
-            {
-                clientPlayer.justShoot = false
-            }
-            , clientPlayer.shootingRate)
-        }
-    }
-}
-
+// UPDATE POSITION OF THE BULLETS
 function bulletsUpdate()
 {
 
@@ -172,6 +128,7 @@ function bulletsUpdate()
     }
 }
 
+// TEST COLLISION BETWEEN CLIENT PLAYER AND ENEMY BULLETS
 function bulletCollisionTest()
 {
     if (clientPlayer != undefined)
@@ -180,7 +137,6 @@ function bulletCollisionTest()
         {
             if (_bullet.playerId != clientPlayer.id && dist(_bullet.pos.x, _bullet.pos.y, clientPlayer.pos.x, clientPlayer.pos.y) < 25 && clientPlayer.godMod == false)
             {
-                console.log('touch')
                 clientPlayer.die()
             }
         }
@@ -194,7 +150,6 @@ function afkTest()
     {
         if (id == clientId)
         {
-            console.log('kicked', id)
             isConnected = false
         }
     })
@@ -209,11 +164,12 @@ function draw()
     {
         if (clientPlayer.isDead == false)
         {
-            playerShooting()
-            clientPlayer.playerConstrain()
+            clientPlayer.shootingTest()
+            clientPlayer.mapConstrain()
         }
-        clientPlayer.updatePlayerPos()
-        clientServerUpdate()
+        clientPlayer.updatePos()
+        clientPlayer.updateStates()
+        clientPlayer.syncClientWithServer()
     }
     playersDisplay()
 
