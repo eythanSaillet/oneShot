@@ -187,6 +187,19 @@ function bulletCollisionTest()
     }
 }
 
+// AFK TEST
+function afkTest()
+{
+    socket.on('afk', (id) =>
+    {
+        if (id == clientId)
+        {
+            console.log('kicked', id)
+            isConnected = false
+        }
+    })
+}
+
 function draw()
 {
     clear()

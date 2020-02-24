@@ -24,6 +24,8 @@ class Player
         this.cannonDir = {x : cannonDirX, y : cannonDirY}
         this.radius = radius
         this.color = color
+
+        this.afkPos = 0
     }
 }
 
@@ -59,7 +61,6 @@ function newConnection(socket)
         // SET UPDATE BULLET CLIENT INFOS
         socket.on('shoot', bulletData =>
         {
-            console.log(bulletData)
             io.sockets.emit('enemyShoot', bulletData)
         })
     })
@@ -67,15 +68,24 @@ function newConnection(socket)
     // DELETE PLAYER WHEN DISCONNECT
     socket.on('disconnect', () =>
     {
-        for (const _player of players)
+        for (const _key in players)
         {
-            if (_player.id == socket.id)
+            if (players[_key].id == socket.id)
             {
-                players.pop(_player)
+                players.splice(_key, 1)
             }
         }
+        // for (const _player of players)
+        // {
+        //     if (_player.id == socket.id)
+        //     {
+        //         players.pop(_player)
+        //     }
+        // }
     })
 }
+
+
 
 // SET THE INTERVAL WHICH SEND UPDATE TO ALL CLIENTS
 setInterval(heartBeat, 33)
@@ -83,4 +93,34 @@ setInterval(heartBeat, 33)
 function heartBeat()
 {
     io.sockets.emit('heartbeat', players)
+}
+
+// AFK TEST
+setInterval(afkTest, 5000)
+
+function afkTest()
+{
+    console.log(players)
+    for (const _key in players)
+    {
+        if(players[_key].afkPos == players[_key].pos.x)
+        {
+            io.sockets.emit('afk', players[_key].id)
+            console.log(players[_key])
+            players.splice(_key, 1)
+        }
+        else
+        {
+            players[_key].afkPos = players[_key].pos.x
+        }
+    }
+    // for (const _player of players)
+    // {
+    //     if(_player.afkPos == _player.pos.x)
+    //     {
+    //         io.sockets.emit('afk', _player.id)
+    //         players.pop(_player)
+    //     }
+    //     _player.afkPos = _player.pos.x
+    // }
 }

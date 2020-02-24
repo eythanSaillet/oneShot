@@ -6,6 +6,7 @@ class Player
         this.name = name
 
         this.pos = createVector(posX, posY)
+        this.afkPos = 0
         this.speed = createVector(0, 0)
         this.radius = radius
         this.color = color,
@@ -30,8 +31,10 @@ class Player
         this.isDead = false
         this.godMod = false
 
+
         this.setShootingMouseEvent()
         this.setKeyboardControls()
+        afkTest()
     }
 
     die()
