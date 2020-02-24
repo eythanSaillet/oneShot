@@ -5,12 +5,12 @@ class Player
         this.id = id
         this.name = name
 
-        this.pos = createVector(posX, posY)
-        this.afkPos = 0
-        this.speed = createVector(0, 0)
         this.radius = radius
         this.color = color,
 
+        this.pos = createVector(posX, posY)
+        this.afkPos = 0
+        this.speed = createVector(0, 0)
         this.speedGoal = createVector(0, 0)
         this.maxSpeed = 3
         this.acc = 0.1
@@ -19,6 +19,7 @@ class Player
         this.movingXNeg = false
         this.movingYPos = false
         this.movingYNeg = false
+        
 
         this.cannonLength = 20,
         this.cannonWidth = 10,
@@ -39,6 +40,7 @@ class Player
 
     die()
     {
+        this.death++
         this.isDead = true
         this.godMod = true
         setTimeout( () =>

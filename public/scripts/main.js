@@ -21,7 +21,7 @@ function setup()
         clientId = id
     })
 
-    // RECEIVE ALL PLAYERS DATA FROM THE SERVER
+    // SETTING THE SOCKET TO RECEIVE ALL PLAYERS DATA FROM THE SERVER
     socket.on('heartbeat', players =>
     {
         playersArray = players
@@ -35,6 +35,12 @@ function setup()
         }
     })
 
+    // SETTING UPDATE LEADERBOARD SOCKET
+    socket.on('updateLeaderBoard', _leaderBoard =>
+    {
+        updateDomLeaderBoard(_leaderBoard)
+    })
+
     setJoinButtonEvent()
 }
 
@@ -42,7 +48,7 @@ function setJoinButtonEvent()
 {
     document.querySelector('.connectionContainer .joinButton').addEventListener('click', () =>
     {
-        if (isConnected == false)
+        if (isConnected == false && document.querySelector('.connectionContainer .nameInput').value.length >= 1)
         {
             isConnected = true
             let inputName = document.querySelector('.connectionContainer .nameInput').value
@@ -138,10 +144,28 @@ function bulletCollisionTest()
             if (_bullet.playerId != clientPlayer.id && dist(_bullet.pos.x, _bullet.pos.y, clientPlayer.pos.x, clientPlayer.pos.y) < 25 && clientPlayer.godMod == false)
             {
                 clientPlayer.die()
+                let killData =
+                {
+                    killerId : _bullet.playerId,
+                    killedId : clientPlayer.id
+                }
+                socket.emit('death', killData)
             }
         }
     }
 }
+
+// UPDATE DOM LEADERBAORD
+function updateDomLeaderBoard(leaderBoard)
+{
+    let $leaderBoard = document.querySelectorAll('.leaderBoardPlayer')
+    for (let i = leaderBoard.length - 1; i >= 0; i--)
+    {
+        $leaderBoard[i].querySelector('.name').innerHTML = leaderBoard[i].name
+        $leaderBoard[i].querySelector('.score').innerHTML = `${leaderBoard[i].kill} / ${Math.floor(leaderBoard[i].death)} / ${Math.round(leaderBoard[i].ratio * 100) / 100}`
+    }
+}
+
 
 // AFK TEST
 function afkTest()

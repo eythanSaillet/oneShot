@@ -13,6 +13,7 @@ let io = socket(server)
 io.sockets.on('connection', newConnection)
 
 let players = []
+let leaderBoard = []
 
 class Player
 {
@@ -27,6 +28,9 @@ class Player
         this.shootingRate = null
 
         this.afkPos = 0
+
+        this.kill = 0
+        this.death = 0.01
     }
 }
 
@@ -66,6 +70,24 @@ function newConnection(socket)
         {
             io.sockets.emit('enemyShoot', bulletData)
         })
+
+        // PUT THE PLAYER IN THE LEADERBOARD
+        let isInTheLeaderBoard = false
+        for (const _leaderBoardPlayer of leaderBoard)
+        {
+            if (player.name == _leaderBoardPlayer.name)
+            {
+                isInTheLeaderBoard = true
+            }
+        }
+        if (isInTheLeaderBoard == false)
+        {
+            leaderBoard.push({
+                name: player.name,
+                kill: player.kill,
+                death: player.death
+            })
+        }
     })
 
     // DELETE PLAYER WHEN DISCONNECT
@@ -79,7 +101,61 @@ function newConnection(socket)
             }
         }
     })
+
+    // KILL DATA TO UPDATE THE LEADERBOARD
+    socket.on('death', (_killData) =>
+    {
+        for (const _player of players)
+        {
+            if(_killData.killerId == _player.id)
+            {
+                _player.kill++
+            }
+            if(_killData.killedId == _player.id)
+            {
+                _player.death++
+            }
+        }
+    })
 }
+
+// SORT THE PLAYERS ARRAY BEFORE DISPLAY IT ON THE LEADERBOARD
+
+function updateLeaderBoardArray()
+{
+    for (const _player of players)
+    {
+        for (const _leaderBoardPlayer of leaderBoard)
+        {
+            if (_player.name == _leaderBoardPlayer.name)
+            {
+                _leaderBoardPlayer.kill = _player.kill
+                _leaderBoardPlayer.death = _player.death
+                _leaderBoardPlayer.ratio = _player.kill / _player.death
+            }
+        }
+    }
+}
+
+function sortPlayersByRatio(tab)
+{
+    // let tab =  JSON.parse(JSON.stringify(leaderBoard))
+    let temp, i, j
+    
+    for(i = 1; i < tab.length; i++)
+    {
+        temp = tab[i]
+        j = i - 1
+        while (j >= 0 && tab[j].kill / tab[j].death > temp.kill / temp.death)
+        {
+            tab[j+1] = tab[j]
+            j--
+        }
+        tab[j+1] = temp
+    }
+    return tab
+}
+
 
 
 // SET THE INTERVAL WHICH SEND UPDATE TO ALL CLIENTS
@@ -92,7 +168,7 @@ function heartBeat()
 
 
 // AFK TEST
-setInterval(afkTest, 7000)
+setInterval(afkTest, 700000)
 
 function afkTest()
 {
@@ -109,3 +185,9 @@ function afkTest()
         }
     }
 }
+
+setInterval(() => {
+    updateLeaderBoardArray()
+    sortPlayersByRatio(leaderBoard)
+    io.sockets.emit('updateLeaderBoard', leaderBoard)
+}, 1000)

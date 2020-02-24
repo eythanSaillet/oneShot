@@ -11,7 +11,7 @@
     <div class="container">
       <div class="leftContainer">
         <div class="connectionContainer">
-          <input class="nameInput" type="text" placeholder="Your name">
+          <input class="nameInput" type="text" maxlength="20" placeholder="Your name">
           <input class="colorInput"  type="color" value="#FFFFFF">
           <div class="joinButton">
             <p>JOIN</p>
@@ -19,7 +19,35 @@
         </div>
       </div>
       <div id="canvasContainer"></div>
-      <div class="rightContainer"></div>
+      <div class="rightContainer">
+        <div class="leaderBoard">
+          <h2>Leaderboard</h2>
+          <h5>kill / death / ratio</h3>
+          <div class="leaderBoardList">
+            <div class="leaderBoardPlayer top1">
+              <span class="name">NAME</span>
+              <span class="score">X / X / X</span>
+            </div>
+            <div class="leaderBoardPlayer top2">
+              <span class="name">XXXXX</span>
+              <span class="score">X / X / X</span>
+            </div>
+            <div class="leaderBoardPlayer top3">
+              <span class="name">XXXXX</span>
+              <span class="score">X / X / X</span>
+            </div>
+            <div class="leaderBoardPlayer top4">
+              <span class="name">XXXXX</span>
+              <span class="score">X / X / X</span>
+            </div>
+            <div class="leaderBoardPlayer top5">
+              <span class="name">XXXXX</span>
+              <span class="score">X / X / X</span>
+            </div>
+          </div>
+        </div>
+        <div class="chat"></div>
+      </div>
     </div>
   </body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js"></script>
