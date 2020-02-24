@@ -12,7 +12,7 @@ class Player
         this.afkPos = 0
         this.speed = createVector(0, 0)
         this.speedGoal = createVector(0, 0)
-        this.maxSpeed = 3
+        this.maxSpeed = 3.5
         this.acc = 0.1
 
         this.movingXPos = false
@@ -20,7 +20,6 @@ class Player
         this.movingYPos = false
         this.movingYNeg = false
         
-
         this.cannonLength = 20,
         this.cannonWidth = 10,
         this.cannonDir = createVector(0, 0),
@@ -57,10 +56,7 @@ class Player
     {
         for (const _player of playersArray)
         {
-            if (_player.id == socket.id)
-            {
-                this.shootingRate = _player.shootingRate
-            }
+            _player.id == socket.id ? this.shootingRate = _player.shootingRate : null
         }
     }
 

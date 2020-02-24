@@ -30,7 +30,7 @@ class Player
         this.afkPos = 0
 
         this.kill = 0
-        this.death = 0.01
+        this.death = 0.0001
     }
 }
 
@@ -60,7 +60,7 @@ function newConnection(socket)
                     players[_key].cannonDir.y = playerStates.cannonDir.y
                     players[_key].godMod = playerStates.godMod
 
-                    players[_key].shootingRate = 200 * Math.pow(1.4, players.length)
+                    players[_key].shootingRate = 200 * Math.pow(1.25, players.length)
                 }
             }
         })
@@ -75,10 +75,7 @@ function newConnection(socket)
         let isInTheLeaderBoard = false
         for (const _leaderBoardPlayer of leaderBoard)
         {
-            if (player.name == _leaderBoardPlayer.name)
-            {
-                isInTheLeaderBoard = true
-            }
+            player.name == _leaderBoardPlayer.name ? isInTheLeaderBoard = true : null
         }
         if (isInTheLeaderBoard == false)
         {
@@ -95,10 +92,7 @@ function newConnection(socket)
     {
         for (const _key in players)
         {
-            if (players[_key].id == socket.id)
-            {
-                players.splice(_key, 1)
-            }
+            players[_key].id == socket.id ? players.splice(_key, 1) : null
         }
     })
 
@@ -107,14 +101,8 @@ function newConnection(socket)
     {
         for (const _player of players)
         {
-            if(_killData.killerId == _player.id)
-            {
-                _player.kill++
-            }
-            if(_killData.killedId == _player.id)
-            {
-                _player.death++
-            }
+            _killData.killerId == _player.id ? _player.kill++ : null
+            _killData.killedId == _player.id ? _player.death++ : null
         }
     })
 }
@@ -139,7 +127,6 @@ function updateLeaderBoardArray()
 
 function sortPlayersByRatio(tab)
 {
-    // let tab =  JSON.parse(JSON.stringify(leaderBoard))
     let temp, i, j
     
     for(i = 1; i < tab.length; i++)

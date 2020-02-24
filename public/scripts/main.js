@@ -9,7 +9,6 @@ function setup()
     createCanvas(700, 700).parent('canvasContainer')
     document.querySelector('#canvasContainer canvas').style.height = '90vh'
     document.querySelector('#canvasContainer canvas').style.width = 'auto'
-    // document.querySelector('#canvasContainer canvas').style.maxWidth = '60vh'
     angleMode(DEGREES)
 
     // socket = io.connect('http://eythansaillet.eu-4.evennode.com/')
@@ -30,15 +29,13 @@ function setup()
     // SETTING BULLET INFO SOCKET
     socket.on('enemyShoot', bulletData =>
     {
-        if (bulletData.id != clientId) {
-            bulletArray.push(new Bullet(bulletData.posX, bulletData.posY, bulletData.speedX, bulletData.speedY, 0.3, bulletData.id))
-        }
+        bulletData.id != clientId ? bulletArray.push(new Bullet(bulletData.posX, bulletData.posY, bulletData.speedX, bulletData.speedY, 0.3, bulletData.id)) : null
     })
 
     // SETTING UPDATE LEADERBOARD SOCKET
     socket.on('updateLeaderBoard', _leaderBoard =>
     {
-        updateDomLeaderBoard(_leaderBoard)
+        updateDomLeaderBoard(_leaderBoard.reverse())
     })
 
     setJoinButtonEvent()
@@ -58,9 +55,9 @@ function setJoinButtonEvent()
     })
 }
 
+// CREATE THE PLAYER AND SEND IT TO THE SERVER
 function joinParty(name, color)
 {
-    // CREATE THE PLAYER AND SEND IT TO THE SERVER
     clientPlayer = new Player(clientId, name, random(width / 10 , width / 1.1), random(height / 10 , height / 1.1), 30, color)
     playerStates =
     {
@@ -156,13 +153,20 @@ function bulletCollisionTest()
 }
 
 // UPDATE DOM LEADERBAORD
-function updateDomLeaderBoard(leaderBoard)
+function updateDomLeaderBoard(_leaderBoard)
 {
     let $leaderBoard = document.querySelectorAll('.leaderBoardPlayer')
-    for (let i = leaderBoard.length - 1; i >= 0; i--)
+    let j = _leaderBoard.length
+
+    // IF THERE IS MORE THAN 5 PLAYERS => JUST PASS 5 TIMES TROUGH THE FOR LOOP
+    _leaderBoard.length > 5 ? j = 5 : null
+
+    // UPDATE EACH LINES OF THE LEADERBOARD
+    for (let i = 0; i < j; i++)
     {
-        $leaderBoard[i].querySelector('.name').innerHTML = leaderBoard[i].name
-        $leaderBoard[i].querySelector('.score').innerHTML = `${leaderBoard[i].kill} / ${Math.floor(leaderBoard[i].death)} / ${Math.round(leaderBoard[i].ratio * 100) / 100}`
+        // IF THE RATION CANNOT BE CALCULED (DEATH : 0) => MAKE IT EQUAL 'X'
+        $leaderBoard[i].querySelector('.name').innerHTML = _leaderBoard[i].name
+        $leaderBoard[i].querySelector('.score').innerHTML = `${_leaderBoard[i].kill} / ${Math.floor(_leaderBoard[i].death)} / ${_leaderBoard[i].ratio >= 100 ? 'X' : Math.round(_leaderBoard[i].ratio * 100) / 100}`
     }
 }
 
@@ -172,10 +176,7 @@ function afkTest()
 {
     socket.on('afk', (id) =>
     {
-        if (id == clientId)
-        {
-            isConnected = false
-        }
+        id == clienId ? isConnected = false : null
     })
 }
 
