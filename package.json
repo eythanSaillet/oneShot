@@ -16,6 +16,6 @@
     "minimist": "^1.2.5",
     "node-sass": "^4.13.1",
     "nodemon": "^2.0.2",
-    "socket.io": "^2.4.0"
+    "socket.io": "^2.5.0"
   }
 }
